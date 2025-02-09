@@ -209,9 +209,9 @@ def extract_key_elements(text):
     overall_score = overall_score_match.group(1) if overall_score_match else None
 
     criteria_pattern = re.findall(
-            r"The score of criteria(\d+):\s*(\d+)\s*\n"
-            r"Summary reasoning criteria\1:\s*(.*?)\n\n"
-            r"Improvement suggestion criteria\1:\s*(.*?)\n\n",
+            r"The score of criteria(\d+):\s*(\d+)[\s\S]+?"
+            r"Summary reasoning criteria\1:\s*(.*?)(?:\n\n|\Z)"
+            r"Improvement suggestion criteria\1:\s*(.*?)(?:\n\n|\Z)",
             text, re.DOTALL
             )
 
