@@ -178,7 +178,7 @@ def evaluate_criteria(proposal):
                     {"role": "user", "content": user_message}
                     ],
                 stream=True,
-                timeout=httpx.Timeout(30.0, read=300.0)
+                timeout=httpx.Timeout(120.0, read=300.0)
                 )
 
         response_text = []
