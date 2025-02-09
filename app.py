@@ -91,7 +91,7 @@ The application must be entirely in English — this is a strict requirement.
 If any part of the application is not in English, it should stop the evaluation process immediately.
 Control characters, special characters, formatting symbols, markup tags, image references are okay.
 Assess if the application provides detailed responses to all required questions: there are 20 questions for each application, and a complete application should contain substantial answers to most of them.
-Sometimes, there may be a nan or empty answer if a question is  irrelevant or does not apply to the team or the product. That's okay.
+Sometimes, there may be a NA or empty answer if a question is  irrelevant or does not apply to the team or the product. That's okay.
 Check each answer in detail to determine if the application fully addresses the required questions. Also, immediately stop the evaluation process if it is not intelligible.
 For example, if you can’t figure out what the product and solution is after reading the application.
 
