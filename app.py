@@ -114,8 +114,6 @@ Important: Products or startups in Early Traction, Growth, or Scale stages shoul
 Notice some applications will say they are in prototype stage or beyond, but they have not actually cleared the bar of having an actual prototype (i.e. the product is still at a pretty conceptual stage).
 If you think the product is in the prototype stage but does not have a viable growth potential, you should still give the application with more than 60 score.
 
-https://www.indeed.com/career-advice/career-development/startup-growth-stages
-
 Criteria 3:
 Criteria to assess: Is the market large enough market and demand?
 
