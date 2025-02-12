@@ -4,6 +4,7 @@ moonshot-ai-api
 
 ## Links
 
+- [Moonshot AI](https://github.com/jimbucktoo/moonshot-ai/) - Moonshot AI Github Repository
 - [Moonshot AI API](https://github.com/jimbucktoo/moonshot-ai-api/) - Moonshot AI API Github Repository
 
 ## Technologies
