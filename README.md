@@ -4,7 +4,7 @@ moonshot-ai-api
 
 ## Links
 
-- [Survaid AI API](https://github.com/jimbucktoo/moonshot-ai-api/) - Moonshot AI API Github Repository
+- [Moonshot AI API](https://github.com/jimbucktoo/moonshot-ai-api/) - Moonshot AI API Github Repository
 
 ## Technologies
 
