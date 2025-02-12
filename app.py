@@ -6,13 +6,16 @@ import time
 import psutil
 import re
 from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
 client = OpenAI(
         base_url="https://integrate.api.nvidia.com/v1",
-        api_key="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",
+        api_key=os.getenv("NV_API_KEY"),
         http_client=httpx.Client(
             timeout=30.0,
             limits=httpx.Limits(max_keepalive_connections=5, max_connections=10)
