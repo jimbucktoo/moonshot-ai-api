@@ -169,6 +169,7 @@ RETRY_EXCEPTIONS = (
         retry=retry_if_exception_type(RETRY_EXCEPTIONS),
         before_sleep=lambda _: print("Connection issue, retrying...")
         )
+
 def evaluate_criteria(proposal):
     user_message = f"\n This is the solution that you are going to evaluate: \n {proposal} \n"
 
@@ -235,4 +236,4 @@ def evaluate():
     return jsonify(extracted_data)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    app.run(host="0.0.0.0", port=10000, debug=True)
