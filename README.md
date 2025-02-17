@@ -4,8 +4,10 @@ MoonshotAI is an AI-powered startup idea evaluation tool that analyzes startup i
 
 ## Links
 
-- [Moonshot AI](https://github.com/jimbucktoo/moonshot-ai/) - Moonshot AI Github Repository
-- [Moonshot AI API](https://github.com/jimbucktoo/moonshot-ai-api/) - Moonshot AI API Github Repository
+- [MoonshotAI Front-End](https://moonshot-ai.surge.sh/) - MoonshotAI Front-End Application
+- [MoonshotAI Back-End](https://moonshot-ai-api.onrender.com) - MoonshotAI Back-End Server
+- [MoonshotAI Repository](https://github.com/jimbucktoo/moonshot-ai/) - MoonshotAI Github Repository
+- [MoonshotAI API Repository](https://github.com/jimbucktoo/moonshot-ai-api/) - MoonshotAI API Github Repository
 
 ## Technologies
 
