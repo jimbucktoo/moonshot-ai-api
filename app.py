@@ -49,6 +49,18 @@ format = (
     "Improvement suggestion criteria6: {improvement6} \n"
 )
 
+Your output must include a <think> section that is divided into the following 8 parts:
+<think>
+    <introduction>[Your introductory reasoning here]</introduction>
+    <criteria1>[Detailed evaluation for Criteria 1]</criteria1>
+    <criteria2>[Detailed evaluation for Criteria 2]</criteria2>
+    <criteria3>[Detailed evaluation for Criteria 3]</criteria3>
+    <criteria4>[Detailed evaluation for Criteria 4]</criteria4>
+    <criteria5>[Detailed evaluation for Criteria 5]</criteria5>
+    <criteria6>[Detailed evaluation for Criteria 6]</criteria6>
+    <conclusion>[Summarize your overall reasoning here]</conclusion>
+</think>
+
 You are an evaluator of startup business ideas from a startup accelerator known as MoonshotAI. MoonshotAI is a startup accelerator platform that can help startups evaluate their startup ideas, and provide improvement recommendations to them. MoonshotAI can also help startups seek funding opportunities from investors, but investors or VCs will only invest in the best and most promising startups. Therefore, the evaluation and improvement recommendations from MoonshotAI to startups must be rigorous and truly helpful. Your role is to critically and rigorously assess the startup ideas that will be provided to you.
 The goal is to help startup founders evaluate whether their startup ideas are good enough based on established criteria I will share and to provide improvement suggestions. Assess each aspect according to the specified criteria.
 
@@ -172,7 +184,6 @@ RETRY_EXCEPTIONS = (
 
 def evaluate_criteria(proposal):
     user_message = f"\n This is the solution that you are going to evaluate: \n {proposal} \n"
-
     try:
         time.sleep(max(0, 1.2 - (time.time() % 1)))
         completion = client.chat.completions.create(
@@ -185,18 +196,15 @@ def evaluate_criteria(proposal):
                 temperature=0,
                 timeout=httpx.Timeout(30.0, read=300.0)
                 )
-
         response_text = []
         chunk_count = 0
         for chunk in completion:
             if chunk_count % 5 == 0 and psutil.virtual_memory().percent > 75:
                 print("[WARN] Memory usage high, trimming output")
                 response_text = response_text[-1000:]
-
             if chunk.choices[0].delta.content:
                 response_text.append(chunk.choices[0].delta.content)
                 chunk_count += 1
-
         final_response = "".join(response_text)
         print(final_response)
         return final_response
@@ -215,7 +223,6 @@ def extract_key_elements_as_variables(text):
             r"Improvement suggestion criteria\1:\s*(.*?)(?=\nThe score of criteria|\Z)",
             re.DOTALL
             )
-
     for match in criteria_pattern.finditer(text):
         num, score, summary, improvement = match.groups()
         extracted_variables[f"score_criteria{num}"] = int(score)
@@ -226,6 +233,21 @@ def extract_key_elements_as_variables(text):
     extracted_variables["think_section"] = think_match.group(1).strip() if think_match else None
     return extracted_variables
 
+def extract_think_parts(text):
+    think_parts = {}
+    # Process each expected part in the <think> section
+    for part in ['introduction', 'criteria1', 'criteria2', 'criteria3', 'criteria4', 'criteria5', 'criteria6', 'conclusion']:
+        pattern = re.compile(rf"<{part}>(.*?)</{part}>", re.DOTALL)
+        match = pattern.search(text)
+        content = match.group(1).strip() if match else None
+        # If the tag is one of the criteria tags, prefix it accordingly.
+        if part.startswith("criteria") and content:
+            # Extract the criteria number from the tag name (e.g., 'criteria1' -> '1')
+            criteria_number = part[-1]
+            content = f"Criteria {criteria_number}: " + content
+        think_parts[part] = content
+    return think_parts
+
 @app.route('/evaluate', methods=['POST'])
 def evaluate():
     data = request.json
@@ -234,6 +256,8 @@ def evaluate():
 
     final_response = evaluate_criteria(data['proposal'])
     extracted_data = extract_key_elements_as_variables(final_response)
+    think_parts = extract_think_parts(final_response)
+    extracted_data.update(think_parts)
     return jsonify(extracted_data)
 
 if __name__ == "__main__":
