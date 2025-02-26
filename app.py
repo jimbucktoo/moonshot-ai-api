@@ -26,10 +26,8 @@ client = OpenAI(
 system_message = '''
 The highest priority requirement: 100% strictly follow the output format below without any changes. This is the most critical principle.
 You are NOT allowed to modify the structure, wording, or order of the format. Every line and section must appear exactly as written. Fill in the missing values without altering anything else; you cannot leave them blank.
-The second highest priority requirement: The overall score should be the average of the scores for each criteria.
 
 format = (
-    "Overall average score: {overall_score} \n"
     "The score of criteria1: {score1} \n"
     "Summary reasoning criteria1: {summary1} \n"
     "Improvement suggestion criteria1: {improvement1} \n"
@@ -78,7 +76,6 @@ Your task:
 3. Determine whether the startup meets the criteria based on its own merits.
 4. Provide your evaluation, explaining your reasoning clearly with a high level of detail. You will critically list all the ways in which the idea can be improved with regard to the criteria. You will explain your reasoning step by step and give a low score (under 50) to an application that can be improved significantly.
 5. Summarize your findings and score the startup based on the criteria. Each application must meet all the elements of the established criteria. If a startup fails to provide detailed and comprehensive answers to all required elements, or if any part of the application is not fully aligned with the criteria details, it should be given a score lower than 50. You must ensure that you only give high scores to applications that comprehensively meet the criteria.
-6. Afterward, you will assign an overall score and separate scores for each criterion that reflect your evaluation of whether the startup idea meets the criteria and is a good idea. Use higher scores for better startup ideas and lower scores for worse startup ideas. All evaluations should be based on the criteria.
 
 Note: Show all citations or links if you use external information.
 
@@ -218,9 +215,6 @@ def extract_key_elements_as_variables(text):
         evaluation_text, _ = text.split("\n--- Evaluation Details End ---", 1)
     else:
         evaluation_text = text
-
-    overall_score_match = re.search(r"Overall average score:\s*([\d.]+)", evaluation_text)
-    extracted_variables["overall_score"] = overall_score_match.group(1) if overall_score_match else None
 
     criteria_pattern = re.compile(
             r"The score of criteria(\d+):\s*(\d+)\s*\n?"
