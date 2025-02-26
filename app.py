@@ -47,19 +47,18 @@ format = (
     "The score of criteria6: {score6} \n"
     "Summary reasoning criteria6: {summary6} \n"
     "Improvement suggestion criteria6: {improvement6} \n"
+    "\n--- Evaluation Details End ---\n"
+    "\n<chain_of_thought>\n"
+    "    <introduction>[Your introductory reasoning here]</introduction>\n"
+    "    <criteria1>[Detailed evaluation for Criteria 1]</criteria1>\n"
+    "    <criteria2>[Detailed evaluation for Criteria 2]</criteria2>\n"
+    "    <criteria3>[Detailed evaluation for Criteria 3]</criteria3>\n"
+    "    <criteria4>[Detailed evaluation for Criteria 4]</criteria4>\n"
+    "    <criteria5>[Detailed evaluation for Criteria 5]</criteria5>\n"
+    "    <criteria6>[Detailed evaluation for Criteria 6]</criteria6>\n"
+    "    <conclusion>[Summarize your overall reasoning here]</conclusion>\n"
+    "</chain_of_thought>"
 )
-
-Your output must include a <think> section that is divided into the following 8 parts:
-<think>
-    <introduction>[Your introductory reasoning here]</introduction>
-    <criteria1>[Detailed evaluation for Criteria 1]</criteria1>
-    <criteria2>[Detailed evaluation for Criteria 2]</criteria2>
-    <criteria3>[Detailed evaluation for Criteria 3]</criteria3>
-    <criteria4>[Detailed evaluation for Criteria 4]</criteria4>
-    <criteria5>[Detailed evaluation for Criteria 5]</criteria5>
-    <criteria6>[Detailed evaluation for Criteria 6]</criteria6>
-    <conclusion>[Summarize your overall reasoning here]</conclusion>
-</think>
 
 You are an evaluator of startup business ideas from a startup accelerator known as MoonshotAI. MoonshotAI is a startup accelerator platform that can help startups evaluate their startup ideas, and provide improvement recommendations to them. MoonshotAI can also help startups seek funding opportunities from investors, but investors or VCs will only invest in the best and most promising startups. Therefore, the evaluation and improvement recommendations from MoonshotAI to startups must be rigorous and truly helpful. Your role is to critically and rigorously assess the startup ideas that will be provided to you.
 The goal is to help startup founders evaluate whether their startup ideas are good enough based on established criteria I will share and to provide improvement suggestions. Assess each aspect according to the specified criteria.
@@ -214,7 +213,12 @@ def evaluate_criteria(proposal):
 
 def extract_key_elements_as_variables(text):
     extracted_variables = {}
-    overall_score_match = re.search(r"Overall average score:\s*([\d.]+)", text)
+    if "\n--- Evaluation Details End ---" in text:
+        evaluation_text, _ = text.split("\n--- Evaluation Details End ---", 1)
+    else:
+        evaluation_text = text
+
+    overall_score_match = re.search(r"Overall average score:\s*([\d.]+)", evaluation_text)
     extracted_variables["overall_score"] = overall_score_match.group(1) if overall_score_match else None
 
     criteria_pattern = re.compile(
@@ -223,26 +227,23 @@ def extract_key_elements_as_variables(text):
             r"Improvement suggestion criteria\1:\s*(.*?)(?=\nThe score of criteria|\Z)",
             re.DOTALL
             )
-    for match in criteria_pattern.finditer(text):
+    for match in criteria_pattern.finditer(evaluation_text):
         num, score, summary, improvement = match.groups()
         extracted_variables[f"score_criteria{num}"] = int(score)
         extracted_variables[f"summary_reasoning_criteria{num}"] = summary.strip()
         extracted_variables[f"improvement_suggestion_criteria{num}"] = improvement.strip()
 
-    think_match = re.search(r"<think>(.*?)</think>", text, re.DOTALL)
+    think_match = re.search(r"<chain_of_thought>(.*?)</chain_of_thought>", text, re.DOTALL)
     extracted_variables["think_section"] = think_match.group(1).strip() if think_match else None
     return extracted_variables
 
 def extract_think_parts(text):
     think_parts = {}
-    # Process each expected part in the <think> section
     for part in ['introduction', 'criteria1', 'criteria2', 'criteria3', 'criteria4', 'criteria5', 'criteria6', 'conclusion']:
         pattern = re.compile(rf"<{part}>(.*?)</{part}>", re.DOTALL)
         match = pattern.search(text)
         content = match.group(1).strip() if match else None
-        # If the tag is one of the criteria tags, prefix it accordingly.
         if part.startswith("criteria") and content:
-            # Extract the criteria number from the tag name (e.g., 'criteria1' -> '1')
             criteria_number = part[-1]
             content = f"Criteria {criteria_number}: " + content
         think_parts[part] = content
