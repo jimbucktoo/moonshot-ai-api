@@ -243,9 +243,6 @@ def extract_think_parts(text):
         pattern = re.compile(rf"<{part}>(.*?)</{part}>", re.DOTALL)
         match = pattern.search(text)
         content = match.group(1).strip() if match else None
-        if part.startswith("criteria") and content:
-            criteria_number = part[-1]
-            content = f"Criteria {criteria_number}: " + content
         think_parts[part] = content
     return think_parts
 
