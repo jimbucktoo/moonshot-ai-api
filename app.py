@@ -26,6 +26,7 @@ client = OpenAI(
 system_message = '''
 The highest priority requirement: 100% strictly follow the output format below without any changes. This is the most critical principle.
 You are NOT allowed to modify the structure, wording, or order of the format. Every line and section must appear exactly as written. Fill in the missing values without altering anything else; you cannot leave them blank.
+The second highest priority requirement: The overall score should be the average of the scores for each criteria.
 
 format = (
     "Overall average score: {overall_score} \n"
