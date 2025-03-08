@@ -5,14 +5,20 @@ import httpx
 import time
 import psutil
 import re
+import sys
+import os
+import uuid
+import json
 from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type
 from dotenv import load_dotenv
-import os
+from gradio_client import Client
 
+# Load environment variables
 load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
+# OpenAI client for DeepSeek
 client = OpenAI(
         base_url="https://integrate.api.nvidia.com/v1",
         api_key=os.getenv("NV_API_KEY"),
@@ -23,6 +29,26 @@ client = OpenAI(
             )
         )
 
+# Hugging Face setup
+hf_token = os.getenv("HF_TOKEN")
+if not hf_token:
+    print("Error: HF_TOKEN environment variable not found. Please set your Hugging Face token.")
+    sys.exit(1)
+
+# Initialize Gradio client with more robust error handling
+try:
+    print(f"Attempting to connect to Hugging Face space with token: {hf_token[:4]}..." if hf_token else "No HF token provided")
+    gradio_client = Client(
+            "MaoShen/Moonshot_DeepResearch", 
+            hf_token=hf_token,
+            )
+    print("Successfully connected to Hugging Face space")
+except Exception as e:
+    print(f"Error initializing Gradio client: {str(e)}")
+    # Continue with the app, but the /research route will return an error
+    gradio_client = None
+
+# System message for DeepSeek evaluation
 system_message = '''
 The highest priority requirement: 100% strictly follow the output format below without any changes. This is the most critical principle.
 You are NOT allowed to modify the structure, wording, or order of the format. Every line and section must appear exactly as written. Fill in the missing values without altering anything else; you cannot leave them blank.
@@ -81,10 +107,10 @@ Note: Show all citations or links if you use external information.
 
 Scoring Rubric: Score of how much it meets the criteria. Take into account your certainty and doubts. Use this scale as guidance:
 
-0: Completely sure the startup idea doesn’t meet the criteria.
+0: Completely sure the startup idea doesn't meet the criteria.
 10: Almost entirely sure the startup idea fails the criteria.
-20: Mostly sure it doesn’t meet the criteria, though some aspects suggest it meets the criteria.
-30: Leaning towards it doesn’t meet the criteria, but some aspects are still valuable, though not enough.
+20: Mostly sure it doesn't meet the criteria, though some aspects suggest it meets the criteria.
+30: Leaning towards it doesn't meet the criteria, but some aspects are still valuable, though not enough.
 40: Close to an equal case for meeting or failing the criteria, but still leaning towards failure.
 50: Exactly equal case for meeting or failing the criteria.
 60: Close to an equal case for meeting or failing the criteria, but leaning towards meeting the criteria.
@@ -139,7 +165,7 @@ Criteria to assess: Can the startup outcompete others and stand out in the marke
 
 Focus on the following aspects when evaluating the criteria:
 1. What are the direct and indirect competitors?
-2. How competitive and crowded is the market? Use SWOT or Porter’s Five Forces model to analyze.
+2. How competitive and crowded is the market? Use SWOT or Porter's Five Forces model to analyze.
 3. Is the startup idea different and better than its competitors?
 4. Does the startup have a strong competitive moat (e.g., technological advantage, network effect, brand, etc.), or can it be easily copied?
 
@@ -159,7 +185,7 @@ Criteria to assess: Does the startup have a good team?
 Focus on the following aspects when evaluating the criteria:
 1. How many people are on your team? How are you and your team well-positioned to deliver this product or solution? The startup team should cover all critical areas—product, technology, business, marketing, etc. (This might vary depending on the business and product). Each member should excel in their respective field and have no overlap in responsibilities.
 2. Do the founders or core team members have experience in successfully building or scaling companies before? If yes, it will be a strong point that shows their execution ability; if not, it should not automatically cause the startup to fail this criterion, but it will not receive a high score either.
-3. Do the founders deeply understand the problem they’re solving? Does the team have a well-defined purpose and long-term goal or roadmap?
+3. Do the founders deeply understand the problem they're solving? Does the team have a well-defined purpose and long-term goal or roadmap?
 4. How long has the team been working on this product or solution? Can the team turn ideas into a working product or solution quickly?
 5. Do they listen to users and iterate based on feedback?
 '''
@@ -253,6 +279,123 @@ def evaluate():
     extracted_data.update(think_parts)
     return jsonify(extracted_data)
 
+@app.route('/research', methods=['POST'])
+def research():
+    start_time = time.time()
+    data = request.json
+
+    if 'proposal' not in data:
+        return jsonify({"error": "Missing 'proposal' in request"}), 400
+
+    if gradio_client is None:
+        return jsonify({"error": "Gradio client not initialized. Check server logs for details."}), 503
+
+    # Generate a unique session and message ID
+    session_id = str(uuid.uuid4())
+    message_id = str(uuid.uuid4())
+
+    try:
+        print(f"Processing research request for proposal: {data['proposal'][:50]}...")
+
+        # First log the user message
+        prompt = f"""
+        There is a startup idea: "{data['proposal']}".
+
+        Do you think this startup idea is highly novel? Please research this idea from three perspectives and generate a novelty score:
+
+        1. Problem Uniqueness: Does this idea address an unmet or unrecognized need?
+        2. Existing Solutions: Evaluate competitors (the most important factor), patent and intellectual property research, and relevant academic research.
+        3. Differentiation: Assess the idea from the perspectives of technical innovation, business model innovation, market segmentation, and user experience.
+
+        Your final answer should be as detailed and professional as possible, including a novelty score on a scale of 100 and a comprehensive report of over 5,000 words. The report should contain sections for the overview, problem uniqueness, existing solutions, differentiation, conclusion, and sources and references, with all sources displayed as hyperlinks. Ensure that the final content includes proper in-text citations with hyperlinks, making each citation a clickable link.
+        """
+
+        print("Logging user message...")
+        try:
+            log_result = gradio_client.predict(
+                    text_input=prompt,
+                    api_name="/log_user_message"
+                    )
+            print(f"Log result completed: {len(log_result) if isinstance(log_result, str) else 'Not a string'} characters")
+        except Exception as e:
+            print(f"Error during message logging: {str(e)}")
+            return jsonify({"error": f"Error logging message: {str(e)}"}), 500
+
+        # Then interact with agent using the logged message
+        print("Interacting with agent...")
+        try:
+            result = gradio_client.predict(
+                    messages=[{
+                        "role": "user",
+                        "content": log_result,
+                        "metadata": {
+                            "id": message_id,
+                            "parent_id": session_id
+                            }
+                        }],
+                    api_name="/interact_with_agent_1"
+                    )
+            print(f"Agent interaction completed: {type(result)}")
+        except Exception as e:
+            print(f"Error during agent interaction: {str(e)}")
+            return jsonify({"error": f"Error during agent interaction: {str(e)}"}), 500
+
+        # Calculate execution time
+        end_time = time.time()
+        execution_time = end_time - start_time
+
+        # Format response
+        response = {
+                "execution_time": f"{execution_time:.2f} seconds",
+                "research_result": result
+                }
+
+        # Save result to file for debugging
+        try:
+            with open('last_research_result.json', 'w', encoding='utf-8') as f:
+                json.dump(response, f, ensure_ascii=False, indent=2)
+            print("Saved result to last_research_result.json")
+        except Exception as e:
+            print(f"Error saving result: {str(e)}")
+
+        return jsonify(response)
+
+    except Exception as e:
+        print(f"Unhandled error in research route: {str(e)}")
+        return jsonify({"error": f"Error during research: {str(e)}"}), 500
+
+def test_hf_connection():
+    """Test the Hugging Face connection and print diagnostic information"""
+    import requests
+    try:
+        print("Testing connection to Hugging Face...")
+        headers = {}
+        if hf_token:
+            headers["Authorization"] = f"Bearer {hf_token}"
+
+        # Try to access the Hugging Face Hub API directly
+        response = requests.get(
+                "https://huggingface.co/api/spaces/MaoShen/Moonshot_DeepResearch",
+                headers=headers,
+                timeout=10
+                )
+
+        print(f"HF API Response Status: {response.status_code}")
+        if response.status_code == 200:
+            print("Successfully connected to Hugging Face API")
+            if response.headers.get('content-type', '').startswith('application/json'):
+                print(f"Response Content (first 1000 chars): {response.text[:1000]}")
+            else:
+                print(f"Response Content-Type: {response.headers.get('content-type')}")
+        else:
+            print(f"Failed to connect to Hugging Face API: {response.text}")
+    except Exception as e:
+        print(f"Error testing HF connection: {str(e)}")
+
 if __name__ == "__main__":
+    # Test the Hugging Face connection before starting the server
+    test_hf_connection()
+
     port = int(os.getenv("PORT", 10000))
+    print(f"Starting server on port {port}...")
     app.run(host="0.0.0.0", port=port, debug=False)
