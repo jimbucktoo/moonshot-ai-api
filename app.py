@@ -40,12 +40,19 @@ try:
     print(f"Attempting to connect to Hugging Face space with token: {hf_token[:4]}..." if hf_token else "No HF token provided")
     gradio_client = Client(
             "MaoShen/Moonshot_DeepResearch", 
-            hf_token=hf_token,
+            hf_token=hf_token
             )
     print("Successfully connected to Hugging Face space")
 except Exception as e:
     print(f"Error initializing Gradio client: {str(e)}")
-    # Continue with the app, but the /research route will return an error
+    if isinstance(e, httpx.HTTPStatusError):
+        print(f"HTTP error occurred: {e.response.status_code} - {e.response.text}")
+    elif isinstance(e, httpx.RequestError):
+        print(f"Request error: {e.request.url} - {e}")
+    elif isinstance(e, json.JSONDecodeError):
+        print("Invalid JSON response received from the server.")
+    else:
+        print(f"Unhandled error: {str(e)}")
     gradio_client = None
 
 # System message for DeepSeek evaluation
