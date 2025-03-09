@@ -1,3 +1,5 @@
 /node_modules
 .DS_Store
 .env
+last_research_result.json
+analysis_report.md

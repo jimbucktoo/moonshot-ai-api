@@ -12,6 +12,8 @@ import json
 from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type
 from dotenv import load_dotenv
 from gradio_client import Client
+# Import the parser functions
+from response_parser import parse_agent_response, save_as_markdown
 
 # Load environment variables
 load_dotenv()
@@ -351,10 +353,19 @@ def research():
         end_time = time.time()
         execution_time = end_time - start_time
 
-        # Format response
+        # Parse the result using the response parser
+        parsed_result = parse_agent_response(result)
+
+        # Save the parsed result as markdown (optional)
+        report_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "analysis_report.md")
+        save_as_markdown(parsed_result, report_path)
+        print(f"Analysis report saved to: {report_path}")
+
+        # Format response with both raw and parsed results
         response = {
                 "execution_time": f"{execution_time:.2f} seconds",
-                "research_result": result
+                "raw_result": result,
+                "parsed_result": parsed_result
                 }
 
         # Save result to file for debugging
