@@ -78,7 +78,7 @@ Your task:
 
 Summarize your findings and score the startup based on the criteria. Each application must meet all elements of the established criteria. If a startup fails to provide detailed and comprehensive answers to all required elements, or if any part of the application does not fully align with the criteria, it should be given a score lower than 60. You must ensure that you only give high scores to applications that comprehensively meet the criteria.
 
-Afterward, you will assign an overall score and separate scores for each criterion. The overall score will be the average of the scores for each criterion. The scores reflect your evaluation of whether the startup idea meets the criteria and is a good idea. Use higher scores when startups meet the criteria and lower scores when startups do not meet the criteria.
+The scores reflect your evaluation of whether the startup idea meets the criteria and is a good idea. Use higher scores when startups meet the criteria and lower scores when startups do not meet the criteria.
 
 Provide your final answer in the following format, ensuring that each section has the exact word count described:
 
