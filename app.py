@@ -82,31 +82,33 @@ Afterward, you will assign an overall score and separate scores for each criteri
 
 Provide your final answer in the following format, ensuring that each section has the exact word count described:
 
+This is the highest priority requirement: you must strictly follow the output format without any changes. This is the most critical principle. You are NOT allowed to modify the structure, wording, or order of the format. Every line and section must appear exactly as written. Fill in the missing values without altering anything else; you cannot leave them blank.
+
 format = (
     "The score of criteria1: {score1} \n"
-    "Detailed reasoning1: {Reasoning1: Explain your complete reasoning step-by-step in a detailed 500-word paragraph} \n"
-    "Summary reasoning criteria1: {summary1: Summary of the reasoning behind the score of each criterion in one informative, 300-word paragraph} \n"
-    "Improvement suggestion criteria1: {improvement1: Improvement suggestions in a detailed 500-word paragraph} \n"
+    "Detailed reasoning1: {Reasoning1: Explain your complete reasoning step-by-step in a detailed 300-word paragraph} \n"
+    "Summary reasoning criteria1: {summary1: Summary of the reasoning behind the score of each criterion in one informative, 200-word paragraph} \n"
+    "Improvement suggestion criteria1: {improvement1: Improvement suggestions in a detailed 300-word paragraph} \n"
     "The score of criteria2: {score2} \n"
-    "Detailed reasoning2: {Reasoning2: Explain your complete reasoning step-by-step in a detailed 500-word paragraph} \n"
-    "Summary reasoning criteria2: {summary2: Summary of the reasoning behind the score of each criterion in one informative, 300-word paragraph} \n"
-    "Improvement suggestion criteria2: {improvement2: Improvement suggestions in a detailed 500-word paragraph} \n
+    "Detailed reasoning2: {Reasoning2: Explain your complete reasoning step-by-step in a detailed 300-word paragraph} \n"
+    "Summary reasoning criteria2: {summary2: Summary of the reasoning behind the score of each criterion in one informative, 200-word paragraph} \n"
+    "Improvement suggestion criteria2: {improvement2: Improvement suggestions in a detailed 300-word paragraph} \n
     "The score of criteria3: {score3} \n"
-    "Detailed reasoning3: {Reasoning3: Explain your complete reasoning step-by-step in a detailed 500-word paragraph} \n"
-    "Summary reasoning criteria3: {summary3: Summary of the reasoning behind the score of each criterion in one informative, 300-word paragraph} \n"
-    "Improvement suggestion criteria3: {improvement3: Improvement suggestions in a detailed 500-word paragraph} \n"
+    "Detailed reasoning3: {Reasoning3: Explain your complete reasoning step-by-step in a detailed 300-word paragraph} \n"
+    "Summary reasoning criteria3: {summary3: Summary of the reasoning behind the score of each criterion in one informative, 200-word paragraph} \n"
+    "Improvement suggestion criteria3: {improvement3: Improvement suggestions in a detailed 300-word paragraph} \n"
     "The score of criteria4: {score4} \n"
-    "Detailed reasoning4: {Reasoning4: Explain your complete reasoning step-by-step in a detailed 500-word paragraph} \n"
-    "Summary reasoning criteria4: {summary4: Summary of the reasoning behind the score of each criterion in one informative, 300-word paragraph} \n"
-    "Improvement suggestion criteria4: {improvement4: Improvement suggestions in a detailed 500-word paragraph} \n"
+    "Detailed reasoning4: {Reasoning4: Explain your complete reasoning step-by-step in a detailed 300-word paragraph} \n"
+    "Summary reasoning criteria4: {summary4: Summary of the reasoning behind the score of each criterion in one informative, 200-word paragraph} \n"
+    "Improvement suggestion criteria4: {improvement4: Improvement suggestions in a detailed 300-word paragraph} \n"
     "The score of criteria5: {score5} \n"
-    "Detailed reasoning5: {Reasoning5: Explain your complete reasoning step-by-step in a detailed 500-word paragraph} \n"
-    "Summary reasoning criteria5: {summary5: Summary of the reasoning behind the score of each criterion in one informative, 300-word paragraph} \n"
-    "Improvement suggestion criteria5: {improvement5: Improvement suggestions in a detailed 500-word paragraph} \n"
+    "Detailed reasoning5: {Reasoning5: Explain your complete reasoning step-by-step in a detailed 300-word paragraph} \n"
+    "Summary reasoning criteria5: {summary5: Summary of the reasoning behind the score of each criterion in one informative, 200-word paragraph} \n"
+    "Improvement suggestion criteria5: {improvement5: Improvement suggestions in a detailed 300-word paragraph} \n"
     "The score of criteria6: {score6} \n"
-    "Detailed reasoning6: {Reasoning6: Explain your complete reasoning step-by-step in a detailed 500-word paragraph} \n"
-    "Summary reasoning criteria6: {summary6: Summary of the reasoning behind the score of each criterion in one informative, 300-word paragraph} \n"
-    "Improvement suggestion criteria6: {improvement6: Improvement suggestions in a detailed 500-word paragraph} \n"
+    "Detailed reasoning6: {Reasoning6: Explain your complete reasoning step-by-step in a detailed 300-word paragraph} \n"
+    "Summary reasoning criteria6: {summary6: Summary of the reasoning behind the score of each criterion in one informative, 200-word paragraph} \n"
+    "Improvement suggestion criteria6: {improvement6: Improvement suggestions in a detailed 300-word paragraph} \n"
     "\n--- Evaluation Details End ---\n"
     "\n<chain_of_thought>\n"
     "    <introduction>[Your introductory reasoning here]</introduction>\n"
@@ -119,8 +121,6 @@ format = (
     "    <conclusion>[Summarize your overall reasoning here]</conclusion>\n"
     "</chain_of_thought>"
 )
-
-This is the highest priority requirement: you must strictly follow the output format without any changes. This is the most critical principle. You are NOT allowed to modify the structure, wording, or order of the format. Every line and section must appear exactly as written. Fill in the missing values without altering anything else; you cannot leave them blank.
 
 Scoring Rubric:
 
