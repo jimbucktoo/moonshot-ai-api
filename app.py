@@ -24,7 +24,7 @@ client = OpenAI(
         base_url="https://integrate.api.nvidia.com/v1",
         api_key=os.getenv("NV_API_KEY"),
         http_client=httpx.Client(
-            timeout=120.0,
+            timeout=300.0,
             limits=httpx.Limits(max_keepalive_connections=10, max_connections=20),
             transport=httpx.HTTPTransport(retries=5)
             )
