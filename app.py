@@ -21,8 +21,8 @@ CORS(app)
 
 # OpenAI client for DeepSeek
 client = OpenAI(
-        base_url="https://integrate.api.nvidia.com/v1",
-        api_key=os.getenv("NV_API_KEY"),
+        base_url="https://api.deepseek.com",
+        api_key=os.getenv("DEEPSEEK_API_KEY"),
         http_client=httpx.Client(
             timeout=300.0,
             limits=httpx.Limits(max_keepalive_connections=10, max_connections=20),
@@ -243,7 +243,7 @@ def evaluate_criteria(proposal):
     try:
         time.sleep(max(0, 1.2 - (time.time() % 1)))
         completion = client.chat.completions.create(
-                model="deepseek-ai/deepseek-r1",
+                model="deepseek-reasoner",
                 messages=[
                     {"role": "system", "content": system_message},
                     {"role": "user", "content": user_message}
