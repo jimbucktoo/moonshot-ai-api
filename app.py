@@ -92,7 +92,7 @@ format = (
     "The score of criteria2: {score2} \n"
     "Detailed reasoning2: {Reasoning2: Explain your complete reasoning step-by-step in a detailed 300-word paragraph} \n"
     "Summary reasoning criteria2: {summary2: Summary of the reasoning behind the score of each criterion in one informative, 200-word paragraph} \n"
-    "Improvement suggestion criteria2: {improvement2: Improvement suggestions in a detailed 300-word paragraph} \n
+    "Improvement suggestion criteria2: {improvement2: Improvement suggestions in a detailed 300-word paragraph} \n"
     "The score of criteria3: {score3} \n"
     "Detailed reasoning3: {Reasoning3: Explain your complete reasoning step-by-step in a detailed 300-word paragraph} \n"
     "Summary reasoning criteria3: {summary3: Summary of the reasoning behind the score of each criterion in one informative, 200-word paragraph} \n"
@@ -252,16 +252,28 @@ def evaluate_criteria(proposal):
                 temperature=0,
                 timeout=httpx.Timeout(30.0, read=300.0)
                 )
+        reasoning_text = []
         response_text = []
         chunk_count = 0
         for chunk in completion:
             if chunk_count % 5 == 0 and psutil.virtual_memory().percent > 75:
                 print("[WARN] Memory usage high, trimming output")
                 response_text = response_text[-1000:]
-            if chunk.choices[0].delta.content:
-                response_text.append(chunk.choices[0].delta.content)
+                reasoning_text = reasoning_text[-1000:]
+            if not chunk.choices:
+                continue
+            delta = chunk.choices[0].delta
+            extras = getattr(delta, "model_extra", None) or {}
+            rc = extras.get("reasoning_content") or getattr(delta, "reasoning_content", None)
+            if rc:
+                reasoning_text.append(rc)
+            if delta.content:
+                response_text.append(delta.content)
                 chunk_count += 1
+        reasoning = "".join(reasoning_text)
         final_response = "".join(response_text)
+        if reasoning:
+            final_response = f"<think>{reasoning}</think>\n" + final_response
         print(final_response)
         return final_response
     except Exception as e:
@@ -277,11 +289,11 @@ def extract_key_elements_as_variables(text: str) -> dict:
 
     # Regular expression to match criteria scores, detailed reasoning, summaries, and improvement suggestions
     criteria_pattern = re.compile(
-            r"The score of criteria(\d+):\s*(\d+)\s*\n?"
-            r"Detailed reasoning\1:\s*(.*?)\s*\n?"
-            r"Summary reasoning criteria\1:\s*(.*?)\s*\n?"
-            r"Improvement suggestion criteria\1:\s*(.*?)(?=\nThe score of criteria|\Z)",
-            re.DOTALL
+            r"The score of criteria(\d+):\s*(\d+)\s*\n+"
+            r"Detailed reasoning\1:\s*(.*?)\n+"
+            r"Summary reasoning criteria\1:\s*(.*?)\n+"
+            r"Improvement suggestion criteria\1:\s*(.*?)(?=\n+The score of criteria|\Z)",
+            re.DOTALL | re.IGNORECASE
             )
 
     for match in criteria_pattern.finditer(evaluation_text):
