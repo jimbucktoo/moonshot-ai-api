@@ -329,6 +329,10 @@ def extract_think_parts(text: str) -> dict:
 
     return think_parts
 
+@app.route('/', methods=['GET'])
+def index():
+    return jsonify({"status": "ok"}), 200
+
 @app.route('/evaluate', methods=['POST'])
 def evaluate():
     data = request.json
